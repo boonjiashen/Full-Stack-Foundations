@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, url_for
 from database_setup import Restaurant, MenuItem, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -23,9 +23,7 @@ def hola():
 @app.route('/<int:rid>/menu')
 def menu(rid):
     items = session.query(MenuItem).filter_by(restaurant_id=rid).all()
-    object = session.query(Restaurant).filter_by(id=rid).first()
-    if not object:
-        return "<h1>Cannot find restaurant with id %s</h1>" % rid
+    object = session.query(Restaurant).filter_by(id=rid).one()
     return render_template('menu.html', restaurant=object, items=items)
     #html = """
             #<h1>Menu for %s</h1>
@@ -33,12 +31,24 @@ def menu(rid):
             #''.join(["<p>%s</p><p />" % str(x) for x in items])
     #return html
 
+@app.route('/<int:rid>/<int:miid>/edit', methods=['GET', 'POST'])
+def edit_menu_item(rid, miid):
+    item = session.query(MenuItem).filter_by(id=miid).one()
+    assert(item.restaurant_id == rid)
+    restaurant = session.query(Restaurant).filter_by(id=rid).one()
+    if request.method == 'GET':
+        return render_template('edit_menu_item.html', item=item,
+                restaurant=restaurant)
+    elif request.method == 'POST':
+        new_item_name = request.form['new_item_name']
+        item.name = new_item_name
+        session.commit
+        return redirect(url_for('menu', rid=rid))
 
 @app.route('/restaurants')
 def restaurants():
     restaurants = session.query(Restaurant).all()
     return render_template('restaurants.html', restaurants=restaurants)
-    #return get_front_page()
 
 @app.route('/<int:rid>/edit', methods=['GET', 'POST'])
 def edit_restaurant(rid):
@@ -94,7 +104,7 @@ def delete_restaurant(rid):
 
 
 @app.route('/add_restaurant', methods=['GET', 'POST'])
-def add():
+def add_restaurant():
     if request.method == 'GET':
         form = """
         Restaurant name to be added
@@ -111,8 +121,8 @@ def add():
         html = """
         Successfully posted new restaurant
         <hl>%s</hl>
-        <p><a href="restaurants">Return to restaurant list</a></p>
-        """ % restaurant_name
+        <p><a href="%s">Return to restaurant list</a></p>
+        """ % (restaurant_name, url_for('restaurants'))
         return html
 
 @app.route('/')
