@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, url_for
+from flask import Flask, request, redirect, render_template, url_for, flash
 from database_setup import Restaurant, MenuItem, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -25,11 +25,6 @@ def menu(rid):
     items = session.query(MenuItem).filter_by(restaurant_id=rid).all()
     object = session.query(Restaurant).filter_by(id=rid).one()
     return render_template('menu.html', restaurant=object, items=items)
-    #html = """
-            #<h1>Menu for %s</h1>
-            #""" % object.name.upper() +  \
-            #''.join(["<p>%s</p><p />" % str(x) for x in items])
-    #return html
 
 
 @app.route('/<int:rid>/<int:miid>/delete', methods=['POST'])
@@ -37,7 +32,8 @@ def delete_menu_item(rid, miid):
     item = session.query(MenuItem).filter_by(id=miid).one()
     assert(item.restaurant_id == rid)
     session.delete(item)
-    session.commit
+    session.commit()
+    flash("%s deleted from menu" % item.name)
     return redirect(url_for('menu', rid=rid))
 
 
@@ -51,8 +47,10 @@ def edit_menu_item(rid, miid):
                 restaurant=restaurant)
     elif request.method == 'POST':
         new_item_name = request.form['new_item_name']
+        old_item_name = item.name
         item.name = new_item_name
-        session.commit
+        session.commit()
+        flash("%s changed to %s" % (old_item_name, new_item_name))
         return redirect(url_for('menu', rid=rid))
 
 @app.route('/restaurants')
@@ -151,6 +149,7 @@ def form_post():
 
 
 if __name__ == "__main__":
+    app.secret_key = 'key'
     app.debug = True
     app.run('0.0.0.0', port=8080)
     #pass
