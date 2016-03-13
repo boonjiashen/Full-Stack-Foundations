@@ -31,6 +31,16 @@ def menu(rid):
             #''.join(["<p>%s</p><p />" % str(x) for x in items])
     #return html
 
+
+@app.route('/<int:rid>/<int:miid>/delete', methods=['POST'])
+def delete_menu_item(rid, miid):
+    item = session.query(MenuItem).filter_by(id=miid).one()
+    assert(item.restaurant_id == rid)
+    session.delete(item)
+    session.commit
+    return redirect(url_for('menu', rid=rid))
+
+
 @app.route('/<int:rid>/<int:miid>/edit', methods=['GET', 'POST'])
 def edit_menu_item(rid, miid):
     item = session.query(MenuItem).filter_by(id=miid).one()
