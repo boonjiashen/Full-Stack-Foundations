@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, redirect
 from database_setup import Restaurant, MenuItem, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -20,20 +20,17 @@ def hello_world():
 def hola():
     return 'hola!'
 
-@app.route('/restaurants')
-def restaurants():
+def get_front_page():
     restaurants = session.query(Restaurant).all()
     def get_template(restaurant):
         return """
                 <p>
                 %s<br>
-                <a href="">Edit</a><br>
-                <form action="delete_restaurant" method="post">
-                  <button type="submit" name="rid" value="%d">Delete</button>
-                </form>
+                <a href="/%d/edit">Edit</a><br>
+                <a href="/%d/delete">Delete</a><br>
                 ---
                 </p>
-                """ % (restaurant.name, restaurant.id)
+                """ % (restaurant.name, restaurant.id, restaurant.id)
     adder = """
     <p>
     <a href="add_restaurant">Add restaurant</a>
@@ -41,16 +38,53 @@ def restaurants():
     """
     return ''.join([get_template(x) for x in restaurants]) + adder
 
-@app.route('/delete_restaurant', methods=['POST'])
-def delete_restaurant():
-    rid = request.form['rid']
+@app.route('/restaurants')
+def restaurants():
+    return get_front_page()
+
+@app.route('/<int:rid>/edit', methods=['GET', 'POST'])
+def edit_restaurant(rid):
+    object = session.query(Restaurant).filter_by(id=rid).first()
+    if not object:
+        return "<h1>Cannot find restaurant with id %s</h1>" % rid
+    curr_name = object.name
+    if request.method == 'GET':
+        html = """
+        <p>
+        New name for %s
+        <form action="%s" method="POST">
+        <input type="text" name="new_name">
+        <input type="submit" value="Submit">
+        </form>
+        """ % (curr_name, request.path)  # redirect back to same path but with POST
+        return html
+    elif request.method == 'POST':
+        new_name = request.form['new_name']
+        object.name = new_name
+        session.commit()
+        return "Successfully renamed %s as %s" % (curr_name, new_name)
+
+
+@app.route('/<int:rid>/delete', methods=['GET', 'POST'])
+def delete_restaurant(rid):
     object = session.query(Restaurant).filter_by(id=rid).first()
     if not object:
         return "<h1>Cannot find restaurant with id %s</h1>" % rid
     name = object.name
-    session.delete(object)
-    session.commit()
-    return 'Successfully deleted restaurant %s with id <br><h1>%s</hl>' % (name, str(rid))
+
+    if request.method == 'GET':
+        html = """
+        Are you sure you want to delete %s?
+        <form action="%s" method="POST">
+        <input type="submit" value="Yes">
+        </form>
+        """ % (object.name, request.path)
+        return html
+    elif request.method == 'POST':
+        session.delete(object)
+        session.commit()
+        return 'Successfully deleted restaurant %s with id <br><h1>%s</hl>' % (name, str(rid))
+
 
 @app.route('/add_restaurant', methods=['GET', 'POST'])
 def add():
