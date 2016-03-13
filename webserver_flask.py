@@ -23,14 +23,20 @@ def hola():
 def get_front_page():
     restaurants = session.query(Restaurant).all()
     def get_template(restaurant):
-        return """
+        return  \
+                """
                 <p>
                 %s<br>
                 <a href="/%d/edit">Edit</a><br>
-                <a href="/%d/delete">Delete</a><br>
+                """ % (restaurant.name, restaurant.id) +  \
+                """
+                <form id="%d" action="/%d/delete" method="post">
+                    <a href="javascript:;" onclick="document.getElementById('%d').submit();">Delete</a>
+                </form>
                 ---
                 </p>
-                """ % (restaurant.name, restaurant.id, restaurant.id)
+                """ % (restaurant.id, restaurant.id, restaurant.id)
+                #<a href="/%d/delete">Delete</a><br>
     adder = """
     <p>
     <a href="add_restaurant">Add restaurant</a>
@@ -63,6 +69,15 @@ def edit_restaurant(rid):
         object.name = new_name
         session.commit()
         return "Successfully renamed %s as %s" % (curr_name, new_name)
+
+@app.route('/test')
+def test():
+    return """
+            <form id="form1" action="showMessage.jsp" method="post">
+                <a href="javascript:;" onclick="document.getElementById('form1').submit();">hi</a>
+            </form>
+            """
+                #<input type="hidden" name="mess" value=<%=n%>/>
 
 
 @app.route('/<int:rid>/delete', methods=['GET', 'POST'])
