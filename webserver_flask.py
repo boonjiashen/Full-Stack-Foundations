@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, render_template
 from database_setup import Restaurant, MenuItem, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -20,33 +20,25 @@ def hello_world():
 def hola():
     return 'hola!'
 
-def get_front_page():
-    restaurants = session.query(Restaurant).all()
-    def get_template(restaurant):
-        return  \
-                """
-                <p>
-                %s<br>
-                <a href="/%d/edit">Edit</a><br>
-                """ % (restaurant.name, restaurant.id) +  \
-                """
-                <form id="%d" action="/%d/delete" method="post">
-                    <a href="javascript:;" onclick="document.getElementById('%d').submit();">Delete</a>
-                </form>
-                ---
-                </p>
-                """ % (restaurant.id, restaurant.id, restaurant.id)
-                #<a href="/%d/delete">Delete</a><br>
-    adder = """
-    <p>
-    <a href="add_restaurant">Add restaurant</a>
-    </p>
-    """
-    return ''.join([get_template(x) for x in restaurants]) + adder
+@app.route('/<int:rid>/menu')
+def menu(rid):
+    items = session.query(MenuItem).filter_by(restaurant_id=rid).all()
+    object = session.query(Restaurant).filter_by(id=rid).first()
+    if not object:
+        return "<h1>Cannot find restaurant with id %s</h1>" % rid
+    return render_template('menu.html', restaurant=object, items=items)
+    #html = """
+            #<h1>Menu for %s</h1>
+            #""" % object.name.upper() +  \
+            #''.join(["<p>%s</p><p />" % str(x) for x in items])
+    #return html
+
 
 @app.route('/restaurants')
 def restaurants():
-    return get_front_page()
+    restaurants = session.query(Restaurant).all()
+    return render_template('restaurants.html', restaurants=restaurants)
+    #return get_front_page()
 
 @app.route('/<int:rid>/edit', methods=['GET', 'POST'])
 def edit_restaurant(rid):
