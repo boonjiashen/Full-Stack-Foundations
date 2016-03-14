@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, render_template, url_for, flash
+import flask.json
 from database_setup import Restaurant, MenuItem, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -25,6 +26,18 @@ def menu(rid):
     items = session.query(MenuItem).filter_by(restaurant_id=rid).all()
     object = session.query(Restaurant).filter_by(id=rid).one()
     return render_template('menu.html', restaurant=object, items=items)
+
+
+@app.route('/<int:rid>/JSON')
+def jsonify_restaurant(rid):
+    items = session.query(MenuItem).filter_by(restaurant_id=rid).all()
+    return flask.jsonify(AwesomeStuff=[x.serialize for x in items])
+
+@app.route('/<int:rid>/<int:miid>/JSON')
+def jsonify_menu_item(rid, miid):
+    item = session.query(MenuItem).filter_by(id=miid).one()
+    assert(item.restaurant_id == rid)
+    return flask.jsonify(GreatThing=item.serialize)
 
 
 @app.route('/<int:rid>/<int:miid>/delete', methods=['POST'])
