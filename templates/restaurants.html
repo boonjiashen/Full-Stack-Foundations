@@ -1,0 +1,36 @@
+<html>
+<body>
+<h1>
+    Awesome restaurants in your neighborhood
+</h1>
+
+{% if not restaurants %}
+    You have no restaurants in your neighborhood :(<br>
+{% else %}
+
+
+    {% for restaurant in restaurants %}
+        <p>
+        <form id="{{restaurant.id}}" action="{{url_for('delete_restaurant', rid=restaurant.id)}}" method="post">
+            <a href="{{url_for('show_menu', rid=restaurant.id)}}">
+                <img src="{{url_for('static', filename='list.png')}}" height=30 />
+            </a>
+            <a href="{{url_for('rename_restaurant', rid=restaurant.id)}}">
+                <img src="{{url_for('static', filename='rename.png')}}" height=30 />
+            </a>
+                <a href="javascript:;" onclick="document.getElementById({{restaurant.id}}).submit();">
+                <img src="{{url_for('static', filename='trash.png')}}" height=30 />
+                </a>
+            {{restaurant.name}}
+        </form>
+        </p>
+    {% endfor %}
+
+    <a href="{{url_for('create_restaurant')}}">
+        <img src="{{url_for('static', filename='add.png')}}" height=30 />
+    </a>
+
+{% endif %}
+
+</body>
+</html>
