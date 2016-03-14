@@ -18,7 +18,8 @@ def show_menu(rid):
 
 @app.route('/<int:rid>/rename')
 def rename_restaurant(rid):
-    return "here we rename rid %i" % rid
+    restaurant = restaurants[0]
+    return render_template('rename_restaurant.html', restaurant=restaurant)
 
 
 @app.route('/<int:rid>/<int:miid>/rename')
