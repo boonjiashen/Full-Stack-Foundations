@@ -13,7 +13,7 @@ def show_restaurants():
 
 @app.route('/<int:rid>/menu')
 def show_menu(rid):
-    return "here's our menu for rid %i" % rid
+    return render_template('menu.html', restaurant=restaurant, items=items)
 
 
 @app.route('/<int:rid>/rename', methods=['GET', 'POST'])
@@ -47,6 +47,9 @@ def create_restaurant():
 def delete_restaurant(rid):
     return redirect(url_for('show_restaurants'))
 
+@app.route('/<int:rid>/<int:miid>/delete_menu_item', methods=['POST'])
+def delete_menu_item(rid, miid):
+    return redirect(url_for('show_menu', rid=rid))
 
 if __name__ == "__main__":
     app.debug = True

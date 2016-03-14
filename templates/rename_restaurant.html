@@ -4,15 +4,15 @@
     Rename {{restaurant.name.upper()}}
 </h1>
 
-    <form action="{{url_for('rename_restaurant', rid=restaurant.id)}}" method="POST">
-        <input type="text" name="new_restaurant_name" placeholder="{{restaurant.name}}">
-        <input type="submit" value="Confirm">
-    </form>
+<form action="{{url_for('rename_restaurant', rid=restaurant.id)}}" method="POST">
+    <input type="text" name="new_restaurant_name" placeholder="{{restaurant.name}}">
+    <input type="submit" value="Confirm">
+</form>
 
-    <a href="{{url_for('show_restaurants')}}">
-        <img src="{{url_for('static', filename='back.png')}}" height='30' title="Back"
-        />
-    </a>
+<a href="{{url_for('show_restaurants')}}">
+    <img src="{{url_for('static', filename='back.png')}}" height='30' title="Back"
+    />
+</a>
 
 </body>
 </html>

@@ -1,0 +1,59 @@
+<html>
+<body>
+<h1>
+    Menu of {{restaurant.name.upper()}}
+</h1>
+
+{% if not items %}
+    This restaurant has no menu items :(<br>
+{% else %}
+
+<table>
+
+    <tr><td></td><td>Item name</td><td>Price</td><td>Description</td></tr>
+    {% for item in items %}
+    <tr>
+        <td>
+            <form id="{{item.id}}" action="{{url_for('delete_menu_item',
+                rid=restaurant.id, miid=item.id)}}" method="post">
+                <a href="{{url_for('rename_menu_item', rid=restaurant.id,
+                    miid=item.id)}}">
+                <img src="{{url_for('static', filename='rename.png')}}"
+                height=30 title="Rename"/>
+            </a>
+                <a href="javascript:;" onclick="document.getElementById({{item.id}}).submit();">
+                <img src="{{url_for('static', filename='trash.png')}}"
+                height=30 title="Trash"/>
+                </a>
+            </form>
+        </td>
+        <td>
+            {{item.name}}
+        </td>
+        <td>
+            {{item.price}}
+        </td>
+        <td>
+            {{item.description}}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+    <a href="{{url_for('create_menu_item', rid=restaurant.id)}}">
+        <img src="{{url_for('static', filename='add.png')}}" height=30
+        title="Add new menu item"/>
+    </a>
+
+{% endif %}
+
+<p>
+<a href="{{url_for('show_restaurants')}}">
+    <img src="{{url_for('static', filename='back.png')}}" height='30' title="Back"
+    />
+</a>
+</p>
+
+
+</body>
+</html>
