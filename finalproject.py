@@ -19,15 +19,18 @@ def show_menu(rid):
 @app.route('/<int:rid>/rename', methods=['GET', 'POST'])
 def rename_restaurant(rid):
     if request.method == 'GET':
-        restaurant = restaurants[0]
         return render_template('rename_restaurant.html', restaurant=restaurant)
     elif request.method == 'POST':
         return redirect(url_for('show_restaurants'))
 
 
-@app.route('/<int:rid>/<int:miid>/rename')
+@app.route('/<int:rid>/<int:miid>/rename', methods=['GET', 'POST'])
 def rename_menu_item(rid, miid):
-    return "here we rename miid %i of rid %i" % (miid, rid)
+    if request.method == 'GET':
+        return render_template('rename_menu_item.html', restaurant=restaurant,
+                item=item)
+    elif request.method == 'POST':
+        return redirect(url_for('show_menu', rid=rid))
 
 
 @app.route('/<int:rid>/create_menu_item')
