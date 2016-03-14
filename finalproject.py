@@ -33,9 +33,12 @@ def rename_menu_item(rid, miid):
         return redirect(url_for('show_menu', rid=rid))
 
 
-@app.route('/<int:rid>/create_menu_item')
+@app.route('/<int:rid>/create_menu_item', methods=['GET', 'POST'])
 def create_menu_item(rid):
-    return "here we create a new menu item for rid %i" % (rid)
+    if request.method == 'GET':
+        return render_template('create_menu_item.html', restaurant=restaurant)
+    elif request.method == 'POST':
+        return redirect(url_for('show_menu', rid=rid))
 
 
 @app.route('/create_restaurant', methods=['GET', 'POST'])
