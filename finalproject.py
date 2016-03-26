@@ -2,6 +2,7 @@ from flask import Flask, url_for, render_template, request, redirect
 from database_setup import Restaurant, MenuItem, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import os
 
 app = Flask(__name__)
 
@@ -95,5 +96,6 @@ def delete_menu_item(rid, miid):
     return redirect(url_for('show_menu', rid=rid))
 
 if __name__ == "__main__":
-    app.debug = True
-    app.run('0.0.0.0', port=8080)
+    #app.debug = True
+    port = int(os.environ.get("PORT", 5002))
+    app.run(host='0.0.0.0', port=port)
